@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:recko/widgets/custom_app_bar.dart';
+import 'package:recko/widgets/instructions.dart';
 import '../services/game_service.dart';
-import 'wordle_game.dart';
+import 'wordle_game.dart'; // Import the instructions widget
 
 class StartGameScreen extends StatefulWidget {
   const StartGameScreen({super.key});
@@ -15,6 +16,18 @@ class StartGameScreen extends StatefulWidget {
 class _StartGameScreenState extends State<StartGameScreen> {
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto open the instructions after the first frame is rendered.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => const Instructions(),
+      );
+    });
+  }
 
   Future<void> _startGame() async {
     setState(() {
@@ -68,17 +81,24 @@ class _StartGameScreenState extends State<StartGameScreen> {
             child: Padding(
               padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).size.height * 0.1),
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _startGame,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                ),
-                child: const Text(
-                  'ПОКРЕНИ',
-                  style: TextStyle(color: Colors.black, fontSize: 25),
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 16),
+                  // "ПОКРЕНИ" button to start the game
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _startGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                    ),
+                    child: const Text(
+                      'ПОКРЕНИ',
+                      style: TextStyle(color: Colors.black, fontSize: 25),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
