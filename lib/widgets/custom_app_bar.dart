@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:recko/widgets/instructions.dart';
+import 'package:recko/widgets/start_over.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({super.key});
+  final VoidCallback onResetGame;
+
+  const CustomAppBar({
+    Key? key,
+    required this.onResetGame,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +18,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // The "Речко" title with styling
           const Text(
             'Речко',
             style: TextStyle(
@@ -32,17 +37,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.restart_alt_rounded,
+                color: Colors.white, size: 30),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => StartOver(
+                  onCancel: () {
+                    Navigator.of(context).pop();
+                  },
+                  onStartOver: () {
+                    Navigator.of(context).pop();
+                    onResetGame();
+                  },
+                ),
+              );
+            },
+          ),
           const Spacer(),
-          // const Text(
-          //   'ПОМОЋ',
-          //   style: TextStyle(
-          //     fontSize: 18,
-          //     fontWeight: FontWeight.bold,
-          //     color: Colors.white,
-          //   ),
-          // ),
-          // const Icon(Icons.keyboard_double_arrow_right,
-          //     color: Colors.white, size: 30),
           const Icon(Icons.lightbulb, color: Colors.white, size: 30),
         ],
       ),
