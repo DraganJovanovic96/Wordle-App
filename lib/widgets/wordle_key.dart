@@ -25,9 +25,9 @@ class _WordleKeyState extends State<WordleKey> {
 
   @override
   Widget build(BuildContext context) {
-    // When pressed, darken the color slightly.
+    // Darken the key when pressed.
     Color displayedColor =
-        _isPressed ? darken(widget.baseColor, 0.3) : widget.baseColor;
+        _isPressed ? darken(widget.baseColor, 0.4) : widget.baseColor;
 
     return Expanded(
       flex: (widget.letter == 'ENTER' || widget.letter == 'BACK') ? 2 : 1,
@@ -40,6 +40,9 @@ class _WordleKeyState extends State<WordleKey> {
               _isPressed = isHighlighted;
             });
           },
+          // Remove the default overlay colors.
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           borderRadius: BorderRadius.circular(4),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
@@ -56,7 +59,7 @@ class _WordleKeyState extends State<WordleKey> {
   }
 }
 
-/// Helper function to darken a color by [amount].
+/// Helper function to darken a color by a given [amount].
 Color darken(Color color, [double amount = .3]) {
   final hsl = HSLColor.fromColor(color);
   final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
