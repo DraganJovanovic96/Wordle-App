@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'wordle_key.dart';
-
-enum LetterState { correct, present, absent }
+import 'package:recko/models/letter_state.dart';
+import 'wordle_key.dart'; // Make sure to import the file where WordleKey is defined
 
 class WordleKeyboard extends StatelessWidget {
   final Map<String, LetterState> letterStates;
   final Function(String) onKeyPressed;
 
-  const WordleKeyboard(
-      {super.key, required this.letterStates, required this.onKeyPressed});
+  const WordleKeyboard({
+    super.key,
+    required this.letterStates,
+    required this.onKeyPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +34,11 @@ class WordleKeyboard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: rowLetters.map((letter) {
-          final int flexValue = (letter == 'ENTER' || letter == 'BACK') ? 2 : 1;
-          return Expanded(
-            flex: flexValue,
-            child: WordleKey(
-              letter: letter,
-              onTap: () => onKeyPressed(letter),
-              baseColor: _getKeyColor(letter),
-              content: _getKeyContent(letter),
-            ),
+          return WordleKey(
+            letter: letter,
+            onTap: () => onKeyPressed(letter),
+            baseColor: _getKeyColor(letter),
+            content: _getKeyContent(letter),
           );
         }).toList(),
       ),
@@ -48,17 +46,19 @@ class WordleKeyboard extends StatelessWidget {
   }
 
   Color _getKeyColor(String letter) {
+    // Special keys get a default grey.
     if (letter == 'ENTER' || letter == 'BACK') {
       return Colors.grey.shade600;
     }
+    // Look up the letter state in the map.
     final state = letterStates[letter];
     switch (state) {
       case LetterState.correct:
-        return Colors.green;
+        return const Color(0xFF588B56); // Custom green (#588B56)
       case LetterState.present:
-        return Colors.amber;
+        return const Color(0xFFB39D4D); // Custom amber/gold
       case LetterState.absent:
-        return Colors.grey.shade900;
+        return const Color(0xFF3A3A3C); // Custom dark grey
       default:
         return Colors.grey.shade600;
     }
