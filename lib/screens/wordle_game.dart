@@ -260,7 +260,7 @@ class _WordleGameState extends State<WordleGame> {
           Column(
             children: [
               // Pass the _resetGame callback to the CustomAppBar:
-              CustomAppBar(onResetGame: _resetGame),
+              CustomAppBar(onResetGame: _resetGame, gameOver: _gameOver),
               Expanded(
                 child: WordleBoard(
                   board: board,

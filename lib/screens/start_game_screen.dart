@@ -57,7 +57,8 @@ class _StartGameScreenState extends State<StartGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        onResetGame: () {},
+        onResetGame: () {}, gameOver: false,
+        // gameOver: _gameOver,
       ),
       backgroundColor: Colors.black,
       body: Stack(

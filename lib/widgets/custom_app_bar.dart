@@ -4,10 +4,12 @@ import 'package:recko/widgets/start_over.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onResetGame;
+  final bool gameOver; // New parameter
 
   const CustomAppBar({
     Key? key,
     required this.onResetGame,
+    required this.gameOver, // Required parameter
   }) : super(key: key);
 
   @override
@@ -37,23 +39,26 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.restart_alt_rounded,
-                color: Colors.white, size: 30),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => StartOver(
-                  onCancel: () {
-                    Navigator.of(context).pop();
-                  },
-                  onStartOver: () {
-                    Navigator.of(context).pop();
-                    onResetGame();
-                  },
-                ),
-              );
-            },
+          Visibility(
+            visible: gameOver, // Only show if game is over
+            child: IconButton(
+              icon: const Icon(Icons.restart_alt_rounded,
+                  color: Colors.white, size: 30),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => StartOver(
+                    onCancel: () {
+                      Navigator.of(context).pop();
+                    },
+                    onStartOver: () {
+                      Navigator.of(context).pop();
+                      onResetGame();
+                    },
+                  ),
+                );
+              },
+            ),
           ),
           const Spacer(),
           const Icon(Icons.lightbulb, color: Colors.white, size: 30),
