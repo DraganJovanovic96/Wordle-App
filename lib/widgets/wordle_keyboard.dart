@@ -5,11 +5,13 @@ import 'wordle_key.dart'; // Make sure to import the file where WordleKey is def
 class WordleKeyboard extends StatelessWidget {
   final Map<String, LetterState> letterStates;
   final Function(String) onKeyPressed;
+  final bool disabled; // New property
 
   const WordleKeyboard({
     super.key,
     required this.letterStates,
     required this.onKeyPressed,
+    this.disabled = false, // default to false
   });
 
   @override
@@ -39,6 +41,7 @@ class WordleKeyboard extends StatelessWidget {
             onTap: () => onKeyPressed(letter),
             baseColor: _getKeyColor(letter),
             content: _getKeyContent(letter),
+            disabled: disabled, // Pass the flag to each key.
           );
         }).toList(),
       ),

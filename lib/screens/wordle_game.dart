@@ -7,6 +7,7 @@ import '../widgets/wordle_keyboard.dart';
 import '../services/submit_guess_service.dart';
 import '../services/game_service.dart';
 import '../widgets/notification_overlay.dart';
+import '../widgets/start_over.dart'; // Import the StartOver dialog widget
 import 'package:recko/models/letter_state.dart';
 
 class WordleGame extends StatefulWidget {
@@ -31,6 +32,9 @@ class _WordleGameState extends State<WordleGame> {
   int currentCol = 0;
   String? _notificationMessage;
   bool _isNotificationError = false;
+
+  // Flag to disable typing after the game is over.
+  bool _gameOver = false;
 
   final SubmitGuessService _submitGuessService = SubmitGuessService();
   final GameService _gameService = GameService();
@@ -95,6 +99,9 @@ class _WordleGameState extends State<WordleGame> {
   }
 
   void onKeyPressed(String letter) async {
+    // If the game is over, ignore further input.
+    if (_gameOver) return;
+
     // Clear any existing notification.
     setState(() {
       _notificationMessage = null;
@@ -106,6 +113,8 @@ class _WordleGameState extends State<WordleGame> {
         try {
           final result = await _submitGuessService.submitGuess(guessedWord);
           if (result != null) {
+            // Check game status returned from the backend.
+            final String gameStatus = result['gameStatus'];
             final guessedWordsDto = result['guessedWordsDto'] as List<dynamic>;
             if (guessedWordsDto.isNotEmpty) {
               final guessResponse = guessedWordsDto.last;
@@ -121,11 +130,25 @@ class _WordleGameState extends State<WordleGame> {
                     _combineLetterState(_keyboardStates[letterChar], state);
               }
             }
-            if (currentRow < 6 - 1) {
+            if (gameStatus == 'WIN') {
               setState(() {
-                currentRow++;
-                currentCol = 0;
+                _gameOver = true;
               });
+              // Show game-over dialog after a win.
+              Future.delayed(Duration.zero, _showGameOverDialog);
+            } else {
+              if (currentRow < 5) {
+                setState(() {
+                  currentRow++;
+                  currentCol = 0;
+                });
+              } else {
+                // Last row and not win: game lost.
+                setState(() {
+                  _gameOver = true;
+                });
+                Future.delayed(Duration.zero, _showGameOverDialog);
+              }
             }
           }
         } catch (e) {
@@ -194,6 +217,40 @@ class _WordleGameState extends State<WordleGame> {
     }
   }
 
+  /// Shows the game-over dialog with options to cancel or start over.
+  void _showGameOverDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Force the user to choose.
+      builder: (BuildContext context) {
+        return StartOver(
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
+          onStartOver: () {
+            Navigator.of(context).pop();
+            _resetGame();
+          },
+        );
+      },
+    );
+  }
+
+  /// Resets the game board and state, and starts a new game.
+  void _resetGame() {
+    setState(() {
+      board = List.generate(6, (_) => List.generate(5, (_) => ''));
+      letterStatesBoard = List.generate(6, (_) => List.filled(5, null));
+      _keyboardStates.clear();
+      currentRow = 0;
+      currentCol = 0;
+      _notificationMessage = null;
+      _isNotificationError = false;
+      _gameOver = false;
+    });
+    _loadActiveGame();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,17 +259,18 @@ class _WordleGameState extends State<WordleGame> {
         children: [
           Column(
             children: [
-              const CustomAppBar(),
+              // Pass the _resetGame callback to the CustomAppBar:
+              CustomAppBar(onResetGame: _resetGame, gameOver: _gameOver),
               Expanded(
                 child: WordleBoard(
                   board: board,
                   states: letterStatesBoard,
                 ),
               ),
-              // Pass the updated keyboard states map to WordleKeyboard.
               WordleKeyboard(
                 letterStates: _keyboardStates,
                 onKeyPressed: onKeyPressed,
+                disabled: _gameOver,
               ),
             ],
           ),

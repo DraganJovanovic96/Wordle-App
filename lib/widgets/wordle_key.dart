@@ -7,6 +7,7 @@ class WordleKey extends StatefulWidget {
   final VoidCallback onTap;
   final Color baseColor;
   final Widget content;
+  final bool disabled; // New property
 
   const WordleKey({
     super.key,
@@ -14,6 +15,7 @@ class WordleKey extends StatefulWidget {
     required this.onTap,
     required this.baseColor,
     required this.content,
+    this.disabled = false,
   });
 
   @override
@@ -25,22 +27,26 @@ class _WordleKeyState extends State<WordleKey> {
 
   @override
   Widget build(BuildContext context) {
-    // Darken the key when pressed.
-    Color displayedColor =
-        _isPressed ? darken(widget.baseColor, 0.4) : widget.baseColor;
+    // If disabled, do not darken the key.
+    Color displayedColor = widget.disabled
+        ? widget.baseColor
+        : (_isPressed ? darken(widget.baseColor, 0.4) : widget.baseColor);
 
     return Expanded(
       flex: (widget.letter == 'ENTER' || widget.letter == 'BACK') ? 2 : 1,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 2.0),
         child: InkWell(
-          onTap: widget.onTap,
-          onHighlightChanged: (isHighlighted) {
-            setState(() {
-              _isPressed = isHighlighted;
-            });
-          },
-          // Remove the default overlay colors.
+          // Disable tap when the key is disabled.
+          onTap: widget.disabled ? null : widget.onTap,
+          // Disable the highlight effect when disabled.
+          onHighlightChanged: widget.disabled
+              ? null
+              : (isHighlighted) {
+                  setState(() {
+                    _isPressed = isHighlighted;
+                  });
+                },
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           borderRadius: BorderRadius.circular(4),
